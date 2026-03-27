@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oceanz Vital — Content Control Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep: #071E2C;
+    --ocean: #0E4D6E;
+    --teal: #1A7A9A;
+    --light-teal: #5BAFC8;
+    --pale: #C8E8F2;
+    --cream: #F5F0E8;
+    --gold: #C8A96E;
+    --gold-light: #E8D5A8;
+    --white: #FFFFFF;
+    --muted: #7A9BAA;
+    --success: #2D7A4F;
+    --warning: #B8860B;
+    --error: #8B2020;
+    --text: #0D1F2D;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--deep);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 50% at 10% 20%, rgba(26,122,154,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 80%, rgba(14,77,110,0.2) 0%, transparent 60%),
+      var(--deep);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .app { position: relative; z-index: 1; min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 40px;
+    border-bottom: 1px solid rgba(91,175,200,0.15);
+  }
+  .logo {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--teal), var(--light-teal));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .logo-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--white);
+    letter-spacing: 0.3px;
+  }
+  .logo-sub {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+  .header-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--muted);
+  }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.3s;
+  }
+  .status-dot.connected { background: #4CAF50; box-shadow: 0 0 6px rgba(76,175,80,0.5); }
+
+  /* MAIN */
+  main { max-width: 900px; margin: 0 auto; padding: 48px 40px; }
+
+  /* SETUP SCREEN */
+  .setup-screen { max-width: 480px; margin: 0 auto; text-align: center; }
+  .setup-icon { font-size: 48px; margin-bottom: 24px; }
+  .setup-screen h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px; font-weight: 400;
+    margin-bottom: 12px;
+    color: var(--white);
+  }
+  .setup-screen p { font-size: 15px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
+
+  .input-group { margin-bottom: 16px; text-align: left; }
+  .input-group label {
+    display: block; font-size: 12px; font-weight: 600;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--light-teal); margin-bottom: 8px;
+  }
+  .input-group input {
+    width: 100%; padding: 14px 18px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(91,175,200,0.2);
+    border-radius: 10px;
+    color: var(--white); font-size: 14px; font-family: 'DM Sans', sans-serif;
+    outline: none; transition: border-color 0.2s;
+  }
+  .input-group input:focus { border-color: var(--teal); }
+  .input-group input::placeholder { color: rgba(255,255,255,0.2); font-size: 13px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 28px; border-radius: 10px;
+    font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; border: none; transition: all 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--teal), var(--ocean));
+    color: white; width: 100%;
+    box-shadow: 0 4px 20px rgba(26,122,154,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(26,122,154,0.4); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), #A88040);
+    color: white;
+    box-shadow: 0 4px 20px rgba(200,169,110,0.25);
+  }
+  .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(200,169,110,0.35); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid rgba(91,175,200,0.3);
+    color: var(--light-teal);
+  }
+  .btn-outline:hover { border-color: var(--light-teal); background: rgba(91,175,200,0.05); }
+
+  .btn-success {
+    background: linear-gradient(135deg, var(--success), #1A5C38);
+    color: white;
+    box-shadow: 0 4px 20px rgba(45,122,79,0.25);
+  }
+  .btn-success:hover { transform: translateY(-1px); }
+
+  /* ERROR / INFO */
+  .notice {
+    padding: 12px 16px; border-radius: 8px;
+    font-size: 13px; margin: 16px 0;
+    display: none;
+  }
+  .notice.error { background: rgba(139,32,32,0.2); border: 1px solid rgba(139,32,32,0.4); color: #FF9090; }
+  .notice.info { background: rgba(26,122,154,0.15); border: 1px solid rgba(91,175,200,0.2); color: var(--pale); }
+  .notice.show { display: block; }
+
+  /* PANEL SCREEN */
+  .panel-screen { display: none; }
+  .panel-screen.show { display: block; }
+
+  /* POST CARD */
+  .post-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(91,175,200,0.15);
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .post-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid rgba(91,175,200,0.1);
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  }
+  .post-meta { flex: 1; }
+  .post-id {
+    font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 6px;
+  }
+  .post-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px; font-weight: 400; line-height: 1.2;
+    color: var(--white); margin-bottom: 12px;
+  }
+  .post-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag {
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+  }
+  .tag-pillar { background: rgba(26,122,154,0.25); color: var(--light-teal); border: 1px solid rgba(91,175,200,0.2); }
+  .tag-format { background: rgba(200,169,110,0.15); color: var(--gold); border: 1px solid rgba(200,169,110,0.2); }
+  .tag-date { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid rgba(255,255,255,0.08); }
+
+  /* SLIDES */
+  .slides-section { padding: 24px 28px; }
+  .slides-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 16px;
+  }
+  .slides-grid {
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .slide-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: grid; grid-template-columns: 40px 1fr;
+    gap: 16px; align-items: start;
+  }
+  .slide-num {
+    width: 32px; height: 32px;
+    background: rgba(26,122,154,0.3);
+    border: 1px solid rgba(91,175,200,0.2);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--light-teal);
+    flex-shrink: 0;
+  }
+  .slide-content {}
+  .slide-name {
+    font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  .slide-headline {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px; font-weight: 400;
+    color: var(--white); margin-bottom: 8px;
+  }
+  .slide-body {
+    font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.7;
+    white-space: pre-line;
+  }
+
+  /* CAPTION SECTION */
+  .caption-section {
+    padding: 0 28px 24px;
+    border-top: 1px solid rgba(91,175,200,0.1);
+    margin-top: 0; padding-top: 24px;
+  }
+  .caption-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px;
+  }
+  .caption-text {
+    font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.8;
+    white-space: pre-line;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 16px;
+  }
+  .visual-notes {
+    margin-top: 12px;
+    font-size: 13px; color: var(--gold);
+    background: rgba(200,169,110,0.08);
+    border: 1px solid rgba(200,169,110,0.15);
+    border-radius: 10px; padding: 14px 16px;
+    line-height: 1.6;
+  }
+  .visual-notes-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: rgba(200,169,110,0.6); margin-bottom: 4px;
+  }
+
+  /* ACTIONS */
+  .actions {
+    padding: 20px 28px 28px;
+    border-top: 1px solid rgba(91,175,200,0.1);
+    display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+  }
+
+  /* LOADING */
+  .loading {
+    text-align: center; padding: 60px 20px;
+    display: none;
+  }
+  .loading.show { display: block; }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid rgba(91,175,200,0.2);
+    border-top-color: var(--light-teal);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { color: var(--muted); font-size: 14px; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center; padding: 80px 20px;
+    display: none;
+  }
+  .empty-state.show { display: block; }
+  .empty-state .emoji { font-size: 48px; margin-bottom: 16px; }
+  .empty-state h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px; font-weight: 400; margin-bottom: 8px;
+  }
+  .empty-state p { color: var(--muted); font-size: 14px; }
+
+  /* QUEUE INFO */
+  .queue-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+    padding: 14px 20px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+  }
+  .queue-info { font-size: 13px; color: var(--muted); }
+  .queue-info strong { color: var(--white); }
+  .queue-actions { display: flex; gap: 8px; }
+
+  /* FOOTER */
+  footer {
+    text-align: center; padding: 32px;
+    font-size: 12px; color: rgba(255,255,255,0.15);
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* CANVA MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(7,30,44,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: none; align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: #0D2A3C;
+    border: 1px solid rgba(91,175,200,0.2);
+    border-radius: 20px;
+    padding: 36px;
+    max-width: 440px; width: 90%;
+    text-align: center;
+  }
+  .modal h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px; font-weight: 400;
+    margin-bottom: 12px;
+  }
+  .modal p { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+  .modal-input {
+    width: 100%; padding: 12px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(91,175,200,0.2);
+    border-radius: 8px;
+    color: var(--white); font-size: 13px; font-family: 'DM Sans', sans-serif;
+    outline: none; margin-bottom: 16px;
+  }
+  .modal-input:focus { border-color: var(--teal); }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions .btn { flex: 1; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="logo">
+      <div class="logo-mark">🌊</div>
+      <div>
+        <div class="logo-text">Oceanz Vital</div>
+        <div class="logo-sub">Content Control Panel</div>
+      </div>
+    </div>
+    <div class="header-status">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Not connected</span>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- SETUP SCREEN -->
+    <div class="setup-screen" id="setupScreen">
+      <div class="setup-icon">🔑</div>
+      <h2>Connect to Notion</h2>
+      <p>Enter your Notion API key and database ID to load your content queue.</p>
+
+      <div class="input-group">
+        <label>Notion API Key</label>
+        <input type="password" id="apiKey" placeholder="secret_xxxxxxxxxxxxxxxxxxxx" />
+      </div>
+      <div class="input-group">
+        <label>Database ID</label>
+        <input type="text" id="dbId" placeholder="32fc3481637480608075fe78ee7f3787" />
+      </div>
+
+      <div class="notice error" id="setupError"></div>
+
+      <button class="btn btn-primary" onclick="connect()" id="connectBtn">
+        Connect to Database
+      </button>
+
+      <div class="notice info show" style="margin-top:20px; text-align:left;">
+        💡 Your API key is stored only in your browser's memory and never sent anywhere except directly to Notion.
+      </div>
+    </div>
+
+    <!-- PANEL SCREEN -->
+    <div class="panel-screen" id="panelScreen">
+
+      <div class="queue-bar">
+        <div class="queue-info">
+          Next up: <strong id="queueCount">—</strong> posts ready to publish
+        </div>
+        <div class="queue-actions">
+          <button class="btn btn-outline" onclick="loadNextPost()" style="padding:8px 16px; font-size:13px;">
+            ↻ Refresh
+          </button>
+          <button class="btn btn-outline" onclick="disconnect()" style="padding:8px 16px; font-size:13px; color:var(--muted);">
+            Disconnect
+          </button>
+        </div>
+      </div>
+
+      <!-- LOADING -->
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Fetching next post from Notion...</p>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div class="empty-state" id="emptyState">
+        <div class="emoji">✅</div>
+        <h3>Queue is empty</h3>
+        <p>No posts with "Not started" status found.<br>Add more content to your Notion database to continue.</p>
+      </div>
+
+      <!-- POST CARD -->
+      <div class="post-card" id="postCard" style="display:none;">
+
+        <div class="post-header">
+          <div class="post-meta">
+            <div class="post-id" id="postId"></div>
+            <div class="post-title" id="postTitle"></div>
+            <div class="post-tags">
+              <span class="tag tag-pillar" id="postPillar"></span>
+              <span class="tag tag-format" id="postFormat"></span>
+              <span class="tag tag-date" id="postDate"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="slides-section" id="slidesSection">
+          <div class="slides-label">Slide Content</div>
+          <div class="slides-grid" id="slidesGrid"></div>
+        </div>
+
+        <div class="caption-section">
+          <div class="caption-label">Caption / Message</div>
+          <div class="caption-text" id="captionText"></div>
+          <div class="visual-notes" id="visualNotes" style="display:none;">
+            <div class="visual-notes-label">🎨 Visual Suggestions</div>
+            <div id="visualNotesText"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-gold" onclick="openCanvaModal()">
+            🎨 Create in Canva
+          </button>
+          <button class="btn btn-success" onclick="markAsInProgress()" id="progressBtn">
+            ▶ Mark In Progress
+          </button>
+          <button class="btn btn-outline" onclick="markAsDone()" id="doneBtn">
+            ✓ Mark as Done
+          </button>
+          <button class="btn btn-outline" onclick="skipPost()" style="margin-left:auto; color:var(--muted);">
+            Skip →
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <footer>Oceanz Vital Content System · Built with Claude</footer>
+</div>
+
+<!-- CANVA MODAL -->
+<div class="modal-overlay" id="canvaModal">
+  <div class="modal">
+    <h3>Open in Canva</h3>
+    <p>Paste your Canva template URL or ID for the <strong id="canvaPillarName"></strong> pillar. This will be remembered for next time.</p>
+    <input class="modal-input" id="canvaTemplateInput" placeholder="https://www.canva.com/design/..." />
+    <div class="notice error" id="canvaError" style="text-align:left;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeCanvaModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="openCanva()">Open Canva →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── STATE ───────────────────────────────────────────────
+  let state = {
+    apiKey: '',
+    dbId: '',
+    currentPost: null,
+    currentPageId: null,
+    remainingPosts: [],
+    skippedIds: []
+  };
+
+  const DB_ID = '32fc3481637480608075fe78ee7f3787';
+
+  // ─── NOTION API (via CORS proxy) ─────────────────────────
+  async function notionFetch(path, options = {}) {
+    const url = `https://api.notion.com/v1${path}`;
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        'Authorization': `Bearer ${state.apiKey}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+      }
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || `Notion API error ${res.status}`);
+    }
+    return res.json();
+  }
+
+  // ─── CONNECT ─────────────────────────────────────────────
+  async function connect() {
+    const key = document.getElementById('apiKey').value.trim();
+    const dbId = document.getElementById('dbId').value.trim() || DB_ID;
+
+    if (!key) { showError('setupError', 'Please enter your Notion API key.'); return; }
+
+    state.apiKey = key;
+    state.dbId = dbId;
+
+    const btn = document.getElementById('connectBtn');
+    btn.disabled = true; btn.textContent = 'Connecting...';
+
+    try {
+      // Test connection by querying database
+      await notionFetch(`/databases/${state.dbId}/query`, {
+        method: 'POST',
+        body: JSON.stringify({ page_size: 1 })
+      });
+
+      // Success
+      document.getElementById('setupScreen').style.display = 'none';
+      document.getElementById('panelScreen').classList.add('show');
+      document.getElementById('statusDot').classList.add('connected');
+      document.getElementById('statusText').textContent = 'Connected to Notion';
+
+      await loadNextPost();
+
+    } catch (e) {
+      showError('setupError', `Connection failed: ${e.message}. Check your API key and make sure you've shared the database with your integration.`);
+      btn.disabled = false; btn.textContent = 'Connect to Database';
+    }
+  }
+
+  function disconnect() {
+    state = { apiKey: '', dbId: '', currentPost: null, currentPageId: null, remainingPosts: [], skippedIds: [] };
+    document.getElementById('setupScreen').style.display = 'block';
+    document.getElementById('panelScreen').classList.remove('show');
+    document.getElementById('statusDot').classList.remove('connected');
+    document.getElementById('statusText').textContent = 'Not connected';
+    document.getElementById('apiKey').value = '';
+    document.getElementById('connectBtn').disabled = false;
+    document.getElementById('connectBtn').textContent = 'Connect to Database';
+  }
+
+  // ─── LOAD NEXT POST ──────────────────────────────────────
+  async function loadNextPost() {
+    showLoading(true);
+    hidePost();
+
+    try {
+      // Query for "Not started" Posts only
+      const data = await notionFetch(`/databases/${state.dbId}/query`, {
+        method: 'POST',
+        body: JSON.stringify({
+          filter: {
+            and: [
+              { property: 'Status', status: { equals: 'Not started' } },
+              { property: 'Format', select: { equals: 'Post' } }
+            ]
+          },
+          sorts: [{ property: 'Unique ID', direction: 'ascending' }],
+          page_size: 20
+        })
+      });
+
+      const posts = data.results.filter(p => !state.skippedIds.includes(p.id));
+      document.getElementById('queueCount').textContent = posts.length;
+
+      if (posts.length === 0) {
+        showLoading(false);
+        document.getElementById('emptyState').classList.add('show');
+        return;
+      }
+
+      const post = posts[0];
+      state.remainingPosts = posts;
+      await displayPost(post);
+
+    } catch (e) {
+      showLoading(false);
+      alert(`Error loading posts: ${e.message}`);
+    }
+  }
+
+  // ─── DISPLAY POST ────────────────────────────────────────
+  async function displayPost(post) {
+    state.currentPost = post;
+    state.currentPageId = post.id;
+
+    const props = post.properties;
+
+    // Extract metadata
+    const id = getTextProp(props, 'Unique ID') || getTextProp(props, 'ID') || '—';
+    const title = getTitleProp(props) || 'Untitled';
+    const pillar = getSelectProp(props, 'Pillar') || '—';
+    const format = getSelectProp(props, 'Format') || '—';
+    const date = getDateProp(props, 'Date') || '—';
+    const message = getTextProp(props, 'Message') || '';
+    const visual = getTextProp(props, 'Visual Suggestions') || '';
+    const contentUrl = getUrlProp(props, 'Content / URL') || '';
+
+    // Fill metadata
+    document.getElementById('postId').textContent = id;
+    document.getElementById('postTitle').textContent = title;
+    document.getElementById('postPillar').textContent = pillar;
+    document.getElementById('postFormat').textContent = format;
+    document.getElementById('postDate').textContent = date;
+    document.getElementById('captionText').textContent = message || '(No caption)';
+
+    if (visual) {
+      document.getElementById('visualNotes').style.display = 'block';
+      document.getElementById('visualNotesText').textContent = visual;
+    } else {
+      document.getElementById('visualNotes').style.display = 'none';
+    }
+
+    // Store pillar for Canva
+    document.getElementById('canvaPillarName').textContent = pillar;
+
+    // Load slide content from linked page
+    const grid = document.getElementById('slidesGrid');
+    grid.innerHTML = '<div style="color:var(--muted);font-size:13px;">Loading slide content...</div>';
+
+    if (contentUrl) {
+      const pageId = extractNotionPageId(contentUrl);
+      if (pageId) {
+        try {
+          const slides = await fetchSlides(pageId);
+          renderSlides(slides, grid);
+        } catch(e) {
+          grid.innerHTML = `<div style="color:rgba(255,100,100,0.7);font-size:13px;">Could not load slides: ${e.message}</div>`;
+        }
+      } else {
+        grid.innerHTML = '<div style="color:var(--muted);font-size:13px;">No linked page found.</div>';
+      }
+    } else {
+      grid.innerHTML = '<div style="color:var(--muted);font-size:13px;">No slide content linked.</div>';
+    }
+
+    showLoading(false);
+    document.getElementById('postCard').style.display = 'block';
+  }
+
+  // ─── FETCH SLIDES FROM LINKED PAGE ───────────────────────
+  async function fetchSlides(pageId) {
+    const data = await notionFetch(`/blocks/${pageId}/children?page_size=100`);
+    const blocks = data.results;
+
+    const slides = [];
+    let current = null;
+    let mode = null; // 'headline' or 'body'
+
+    for (const block of blocks) {
+      const type = block.type;
+      const text = extractBlockText(block);
+
+      if (type === 'heading_2' && text.toLowerCase().startsWith('slide')) {
+        // New slide
+        if (current) slides.push(current);
+        current = { name: text, headline: '', body: [] };
+        mode = null;
+        continue;
+      }
+
+      if (!current) continue;
+
+      if (type === 'heading_3' || (type === 'paragraph' && isBoldLabel(block, 'Headline'))) {
+        mode = 'headline'; continue;
+      }
+      if (type === 'heading_3' || (type === 'paragraph' && isBoldLabel(block, 'Text'))) {
+        mode = 'body'; continue;
+      }
+
+      if (text && mode === 'headline' && !current.headline) {
+        current.headline = text;
+      } else if (text && mode === 'body') {
+        current.body.push(text);
+      } else if (text && !mode) {
+        // Fallback: first bold paragraph after slide heading = headline
+        if (isAllBold(block) && !current.headline) {
+          current.headline = text;
+          mode = 'headline';
+        } else {
+          current.body.push(text);
+        }
+      }
+    }
+    if (current) slides.push(current);
+    return slides;
+  }
+
+  function renderSlides(slides, grid) {
+    if (!slides.length) {
+      grid.innerHTML = '<div style="color:var(--muted);font-size:13px;">No slides found on linked page.</div>';
+      return;
+    }
+    grid.innerHTML = slides.map((s, i) => `
+      <div class="slide-item">
+        <div class="slide-num">${i + 1}</div>
+        <div class="slide-content">
+          <div class="slide-name">${s.name}</div>
+          <div class="slide-headline">${s.headline || '<em style="opacity:0.4">No headline</em>'}</div>
+          <div class="slide-body">${s.body.join('\n') || ''}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ─── ACTIONS ─────────────────────────────────────────────
+  async function markAsInProgress() {
+    await updateStatus('In progress');
+    document.getElementById('progressBtn').textContent = '▶ In Progress ✓';
+    document.getElementById('progressBtn').disabled = true;
+  }
+
+  async function markAsDone() {
+    if (!state.currentPageId) return;
+    await updateStatus('Done');
+    document.getElementById('postCard').style.display = 'none';
+    await loadNextPost();
+  }
+
+  async function updateStatus(status) {
+    await notionFetch(`/pages/${state.currentPageId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        properties: { Status: { status: { name: status } } }
+      })
+    });
+  }
+
+  function skipPost() {
+    if (state.currentPost) state.skippedIds.push(state.currentPost.id);
+    const remaining = state.remainingPosts.filter(p => !state.skippedIds.includes(p.id));
+    if (remaining.length > 1) {
+      hidePost();
+      showLoading(true);
+      displayPost(remaining[1]);
+    } else {
+      loadNextPost();
+    }
+  }
+
+  // ─── CANVA ───────────────────────────────────────────────
+  function openCanvaModal() {
+    const pillar = document.getElementById('postPillar').textContent;
+    const saved = localStorage.getItem(`canva_template_${pillar}`);
+    if (saved) document.getElementById('canvaTemplateInput').value = saved;
+    document.getElementById('canvaModal').classList.add('show');
+  }
+
+  function closeCanvaModal() {
+    document.getElementById('canvaModal').classList.remove('show');
+    document.getElementById('canvaError').classList.remove('show');
+  }
+
+  function openCanva() {
+    const url = document.getElementById('canvaTemplateInput').value.trim();
+    const pillar = document.getElementById('postPillar').textContent;
+    if (!url) { showError('canvaError', 'Please enter a Canva template URL.'); return; }
+    localStorage.setItem(`canva_template_${pillar}`, url);
+    window.open(url, '_blank');
+    closeCanvaModal();
+  }
+
+  // ─── HELPERS ─────────────────────────────────────────────
+  function getTitleProp(props) {
+    for (const key of Object.keys(props)) {
+      if (props[key].type === 'title') {
+        return props[key].title.map(t => t.plain_text).join('');
+      }
+    }
+    return '';
+  }
+
+  function getTextProp(props, name) {
+    const p = props[name];
+    if (!p) return '';
+    if (p.type === 'rich_text') return p.rich_text.map(t => t.plain_text).join('');
+    if (p.type === 'title') return p.title.map(t => t.plain_text).join('');
+    if (p.type === 'unique_id') return p.unique_id?.prefix ? `${p.unique_id.prefix}${p.unique_id.number}` : String(p.unique_id?.number || '');
+    return '';
+  }
+
+  function getSelectProp(props, name) {
+    return props[name]?.select?.name || '';
+  }
+
+  function getDateProp(props, name) {
+    const d = props[name]?.date?.start;
+    if (!d) return '';
+    return new Date(d).toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function getUrlProp(props, name) {
+    return props[name]?.url || '';
+  }
+
+  function extractBlockText(block) {
+    const type = block.type;
+    const content = block[type];
+    if (!content?.rich_text) return '';
+    return content.rich_text.map(t => t.plain_text).join('');
+  }
+
+  function isBoldLabel(block, label) {
+    const type = block.type;
+    const content = block[type];
+    if (!content?.rich_text?.length) return false;
+    const text = content.rich_text.map(t => t.plain_text).join('').trim();
+    return text.toLowerCase() === label.toLowerCase();
+  }
+
+  function isAllBold(block) {
+    const type = block.type;
+    const content = block[type];
+    if (!content?.rich_text?.length) return false;
+    return content.rich_text.every(t => t.annotations?.bold);
+  }
+
+  function extractNotionPageId(url) {
+    // Extract 32-char hex ID from Notion URL
+    const match = url.match(/([a-f0-9]{32})/i);
+    return match ? match[1] : null;
+  }
+
+  function showLoading(show) {
+    document.getElementById('loading').classList.toggle('show', show);
+    document.getElementById('emptyState').classList.remove('show');
+  }
+
+  function hidePost() {
+    document.getElementById('postCard').style.display = 'none';
+    document.getElementById('emptyState').classList.remove('show');
+    document.getElementById('progressBtn').disabled = false;
+    document.getElementById('progressBtn').textContent = '▶ Mark In Progress';
+  }
+
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
+  // Pre-fill DB ID
+  document.getElementById('dbId').value = DB_ID;
+</script>
+</body>
+</html>
