@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oceanz Vital — Content Control Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep: #071E2C; --ocean: #0E4D6E; --teal: #1A7A9A;
+    --light-teal: #5BAFC8; --pale: #C8E8F2; --gold: #C8A96E;
+    --white: #FFFFFF; --muted: #7A9BAA; --success: #2D7A4F;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--deep); color: var(--white); min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 10% 20%, rgba(26,122,154,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 90% 80%, rgba(14,77,110,0.2) 0%, transparent 60%), var(--deep);
+    z-index: 0; pointer-events: none;
+  }
+  .app { position: relative; z-index: 1; min-height: 100vh; }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 40px; border-bottom: 1px solid rgba(91,175,200,0.15);
+  }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-mark { width: 36px; height: 36px; background: linear-gradient(135deg, var(--teal), var(--light-teal)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .logo-text { font-family: 'DM Serif Display', serif; font-size: 20px; }
+  .logo-sub { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 1px; }
+  .header-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transition: background 0.3s; }
+  .status-dot.connected { background: #4CAF50; box-shadow: 0 0 6px rgba(76,175,80,0.5); }
+  main { max-width: 900px; margin: 0 auto; padding: 48px 40px; }
+
+  .setup-screen { max-width: 500px; margin: 0 auto; }
+  .setup-icon { font-size: 48px; margin-bottom: 24px; text-align: center; }
+  .setup-screen h2 { font-family: 'DM Serif Display', serif; font-size: 32px; font-weight: 400; margin-bottom: 10px; text-align: center; }
+  .setup-screen .lead { font-size: 15px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; text-align: center; }
+  .input-group { margin-bottom: 16px; }
+  .input-group label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--light-teal); margin-bottom: 8px; }
+  .input-group input { width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.05); border: 1px solid rgba(91,175,200,0.2); border-radius: 10px; color: var(--white); font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s; }
+  .input-group input:focus { border-color: var(--teal); }
+  .input-group input::placeholder { color: rgba(255,255,255,0.2); font-size: 13px; }
+  .hint { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 6px; line-height: 1.5; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; border-radius: 10px; font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-primary { background: linear-gradient(135deg, var(--teal), var(--ocean)); color: white; width: 100%; box-shadow: 0 4px 20px rgba(26,122,154,0.3); }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-gold { background: linear-gradient(135deg, var(--gold), #A88040); color: white; }
+  .btn-gold:hover { transform: translateY(-1px); }
+  .btn-outline { background: transparent; border: 1px solid rgba(91,175,200,0.3); color: var(--light-teal); }
+  .btn-outline:hover { border-color: var(--light-teal); background: rgba(91,175,200,0.05); }
+  .btn-success { background: linear-gradient(135deg, var(--success), #1A5C38); color: white; }
+  .btn-sm { padding: 8px 16px; font-size: 13px; }
+
+  .notice { padding: 12px 16px; border-radius: 8px; font-size: 13px; margin: 16px 0; display: none; line-height: 1.5; }
+  .notice.error { background: rgba(139,32,32,0.2); border: 1px solid rgba(139,32,32,0.4); color: #FF9090; }
+  .notice.info { background: rgba(26,122,154,0.15); border: 1px solid rgba(91,175,200,0.2); color: var(--pale); }
+  .notice.show { display: block; }
+
+  .panel-screen { display: none; }
+  .panel-screen.show { display: block; }
+  .queue-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding: 14px 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; }
+  .queue-info { font-size: 13px; color: var(--muted); }
+  .queue-info strong { color: var(--white); }
+  .queue-actions { display: flex; gap: 8px; }
+
+  .loading { text-align: center; padding: 60px 20px; display: none; }
+  .loading.show { display: block; }
+  .spinner { width: 40px; height: 40px; border: 3px solid rgba(91,175,200,0.2); border-top-color: var(--light-teal); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { color: var(--muted); font-size: 14px; }
+  .loading .step { font-size: 12px; color: rgba(255,255,255,0.2); margin-top: 6px; }
+
+  .empty-state { text-align: center; padding: 80px 20px; display: none; }
+  .empty-state.show { display: block; }
+  .empty-state .emoji { font-size: 48px; margin-bottom: 16px; }
+  .empty-state h3 { font-family: 'DM Serif Display', serif; font-size: 24px; font-weight: 400; margin-bottom: 8px; }
+  .empty-state p { color: var(--muted); font-size: 14px; }
+
+  .post-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(91,175,200,0.15); border-radius: 18px; overflow: hidden; margin-bottom: 24px; display: none; }
+  .post-header { padding: 24px 28px; border-bottom: 1px solid rgba(91,175,200,0.1); }
+  .post-id { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .post-title { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; line-height: 1.2; margin-bottom: 12px; }
+  .post-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .tag-pillar { background: rgba(26,122,154,0.25); color: var(--light-teal); border: 1px solid rgba(91,175,200,0.2); }
+  .tag-format { background: rgba(200,169,110,0.15); color: var(--gold); border: 1px solid rgba(200,169,110,0.2); }
+  .tag-date { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid rgba(255,255,255,0.08); }
+
+  .slides-section { padding: 24px 28px; border-bottom: 1px solid rgba(91,175,200,0.1); }
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .slides-grid { display: flex; flex-direction: column; gap: 12px; }
+  .slide-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 16px 20px; display: grid; grid-template-columns: 40px 1fr; gap: 16px; align-items: start; }
+  .slide-num { width: 32px; height: 32px; background: rgba(26,122,154,0.3); border: 1px solid rgba(91,175,200,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--light-teal); flex-shrink: 0; }
+  .slide-name { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .slide-headline { font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--white); margin-bottom: 8px; }
+  .slide-body { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.7; white-space: pre-line; }
+
+  .caption-section { padding: 24px 28px; border-bottom: 1px solid rgba(91,175,200,0.1); }
+  .caption-text { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.8; white-space: pre-line; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 16px; }
+  .visual-notes { margin-top: 12px; font-size: 13px; color: var(--gold); background: rgba(200,169,110,0.08); border: 1px solid rgba(200,169,110,0.15); border-radius: 10px; padding: 14px 16px; line-height: 1.6; }
+  .visual-notes-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(200,169,110,0.6); margin-bottom: 4px; }
+
+  .actions { padding: 20px 28px 28px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(7,30,44,0.85); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: #0D2A3C; border: 1px solid rgba(91,175,200,0.2); border-radius: 20px; padding: 36px; max-width: 440px; width: 90%; text-align: center; }
+  .modal h3 { font-family: 'DM Serif Display', serif; font-size: 24px; font-weight: 400; margin-bottom: 12px; }
+  .modal p { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+  .modal-input { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(91,175,200,0.2); border-radius: 8px; color: var(--white); font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; margin-bottom: 16px; }
+  .modal-input:focus { border-color: var(--teal); }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions .btn { flex: 1; }
+
+  footer { text-align: center; padding: 32px; font-size: 12px; color: rgba(255,255,255,0.15); border-top: 1px solid rgba(255,255,255,0.05); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">
+      <div class="logo-mark">🌊</div>
+      <div>
+        <div class="logo-text">Oceanz Vital</div>
+        <div class="logo-sub">Content Control Panel</div>
+      </div>
+    </div>
+    <div class="header-status">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Not connected</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- SETUP -->
+    <div class="setup-screen" id="setupScreen">
+      <div class="setup-icon">🔑</div>
+      <h2>Connect Your Keys</h2>
+      <p class="lead">Enter your Notion and Anthropic API keys. Both are stored only in your browser's memory and sent only to their respective services.</p>
+
+      <div class="input-group">
+        <label>Notion API Key</label>
+        <input type="password" id="notionKey" placeholder="ntn_..." />
+        <div class="hint">notion.so/my-integrations → your integration → Internal Integration Secret</div>
+      </div>
+      <div class="input-group">
+        <label>Anthropic API Key</label>
+        <input type="password" id="anthropicKey" placeholder="sk-ant-..." />
+        <div class="hint">console.anthropic.com → API Keys. Claude securely fetches your Notion data server-side.</div>
+      </div>
+
+      <div class="notice error" id="setupError"></div>
+      <button class="btn btn-primary" onclick="connect()" id="connectBtn">Connect & Load Queue</button>
+      <div class="notice info show" style="margin-top:20px;">🔒 Keys are never stored on any server. They live only in browser memory for this session.</div>
+    </div>
+
+    <!-- PANEL -->
+    <div class="panel-screen" id="panelScreen">
+      <div class="queue-bar">
+        <div class="queue-info">Queue: <strong id="queueCount">—</strong> posts ready</div>
+        <div class="queue-actions">
+          <button class="btn btn-outline btn-sm" onclick="loadNextPost()">↻ Refresh</button>
+          <button class="btn btn-outline btn-sm" onclick="disconnect()" style="color:var(--muted);">Disconnect</button>
+        </div>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p id="loadingMsg">Fetching your content queue...</p>
+        <div class="step" id="loadingStep"></div>
+      </div>
+
+      <div class="empty-state" id="emptyState">
+        <div class="emoji">✅</div>
+        <h3>Queue is empty</h3>
+        <p>No "Not started" Posts found. Add more content to Notion to continue.</p>
+      </div>
+
+      <div class="post-card" id="postCard">
+        <div class="post-header">
+          <div class="post-id" id="postId"></div>
+          <div class="post-title" id="postTitle"></div>
+          <div class="post-tags">
+            <span class="tag tag-pillar" id="postPillar"></span>
+            <span class="tag tag-format" id="postFormat"></span>
+            <span class="tag tag-date" id="postDate"></span>
+          </div>
+        </div>
+        <div class="slides-section">
+          <div class="section-label">Slide Content</div>
+          <div class="slides-grid" id="slidesGrid"></div>
+        </div>
+        <div class="caption-section">
+          <div class="section-label">Caption / Message</div>
+          <div class="caption-text" id="captionText"></div>
+          <div class="visual-notes" id="visualNotes" style="display:none;">
+            <div class="visual-notes-label">🎨 Visual Suggestions</div>
+            <div id="visualNotesText"></div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-gold" onclick="openCanvaModal()">🎨 Create in Canva</button>
+          <button class="btn btn-success" onclick="markInProgress()" id="progressBtn">▶ Mark In Progress</button>
+          <button class="btn btn-outline" onclick="markDone()">✓ Mark as Done</button>
+          <button class="btn btn-outline" onclick="loadNextPost()" style="margin-left:auto;color:var(--muted);">Skip →</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer>Oceanz Vital Content System · Built with Claude</footer>
+</div>
+
+<!-- CANVA MODAL -->
+<div class="modal-overlay" id="canvaModal">
+  <div class="modal">
+    <h3>Open in Canva</h3>
+    <p>Paste your Canva template URL for the <strong id="canvaPillarName"></strong> pillar. Saved per pillar for next time.</p>
+    <input class="modal-input" id="canvaUrl" placeholder="https://www.canva.com/design/..." />
+    <div class="notice error" id="canvaError"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeCanvaModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="openCanva()">Open Canva →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const NOTION_DB_ID = '32fc3481637480608075fe78ee7f3787';
+  let state = { notionKey:'', anthropicKey:'', currentPageId:null };
+
+  async function connect() {
+    const nKey = document.getElementById('notionKey').value.trim();
+    const aKey = document.getElementById('anthropicKey').value.trim();
+    if (!nKey || !aKey) { showError('setupError', 'Please enter both API keys.'); return; }
+    state.notionKey = nKey;
+    state.anthropicKey = aKey;
+    setBtn('connectBtn', 'Connecting...', true);
+    try {
+      await loadNextPost();
+      document.getElementById('setupScreen').style.display = 'none';
+      document.getElementById('panelScreen').classList.add('show');
+      document.getElementById('statusDot').classList.add('connected');
+      document.getElementById('statusText').textContent = 'Connected';
+    } catch(e) {
+      showError('setupError', 'Connection failed: ' + e.message);
+      setBtn('connectBtn', 'Connect & Load Queue', false);
+    }
+  }
+
+  function disconnect() {
+    state = { notionKey:'', anthropicKey:'', currentPageId:null };
+    document.getElementById('setupScreen').style.display = 'block';
+    document.getElementById('panelScreen').classList.remove('show');
+    document.getElementById('statusDot').classList.remove('connected');
+    document.getElementById('statusText').textContent = 'Not connected';
+    document.getElementById('notionKey').value = '';
+    document.getElementById('anthropicKey').value = '';
+    setBtn('connectBtn', 'Connect & Load Queue', false);
+    document.getElementById('postCard').style.display = 'none';
+  }
+
+  async function loadNextPost() {
+    showLoading(true, 'Claude is fetching your Notion queue...', '');
+    document.getElementById('postCard').style.display = 'none';
+    document.getElementById('emptyState').classList.remove('show');
+
+    const prompt = `You are a data-fetching assistant with access to external HTTP APIs.
+
+Make the following Notion API calls and return structured JSON.
+
+STEP 1 — Query database for next Post:
+URL: https://api.notion.com/v1/databases/${NOTION_DB_ID}/query
+Method: POST
+Headers: Authorization: Bearer ${state.notionKey} | Notion-Version: 2022-06-28 | Content-Type: application/json
+Body: {"filter":{"and":[{"property":"Status","status":{"equals":"Not started"}},{"property":"Format","select":{"equals":"Post"}}]},"sorts":[{"property":"Unique ID","direction":"ascending"}],"page_size":20}
+
+From the results take the FIRST item. Extract:
+- page_id (the id field of the page object)
+- unique_id: from property "Unique ID" (rich_text type - join plain_text values)
+- title: from the title-type property (join plain_text values)
+- pillar: from "Pillar" select property (name field)
+- format: from "Format" select property (name field)
+- date: from "Date" date property (start field)
+- message: from "Message" rich_text property (join plain_text values)
+- visual_suggestions: from "Visual Suggestions" rich_text property (join plain_text values)
+- content_url: from "Content / URL" url property
+
+Also note total_queue = total number of results returned.
+
+STEP 2 — Fetch slide content from the linked page:
+Extract the 32-character hex page ID from content_url.
+URL: https://api.notion.com/v1/blocks/{that_page_id}/children?page_size=100
+Method: GET
+Headers: Authorization: Bearer ${state.notionKey} | Notion-Version: 2022-06-28
+
+Parse the blocks to extract slides. Rules:
+- A new slide starts whenever a heading_2 block contains "Slide" in its text
+- The slide name is the text after the dash in the heading (e.g. "Slide 1 — Hook" → name is "Hook")  
+- After "Headline" label: the next non-empty paragraph text is the headline
+- After "Text" label: all following paragraphs until next Slide heading are the body (join with newline)
+- "Headline" and "Text" labels are bold paragraphs containing only those words
+
+STEP 3 — Return ONLY this JSON, no markdown fences, no explanation:
+{
+  "total_queue": <number>,
+  "post": {
+    "page_id": "...",
+    "unique_id": "...",
+    "title": "...",
+    "pillar": "...",
+    "format": "...",
+    "date": "...",
+    "message": "...",
+    "visual_suggestions": "...",
+    "slides": [
+      {"number": 1, "name": "...", "headline": "...", "body": "..."},
+      {"number": 2, "name": "...", "headline": "...", "body": "..."}
+    ]
+  }
+}
+
+If no matching posts exist: {"total_queue": 0, "post": null}`;
+
+    try {
+      const raw = await callClaude(prompt);
+      const clean = raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+      const data = JSON.parse(clean);
+
+      document.getElementById('queueCount').textContent = data.total_queue || 0;
+
+      if (!data.post) {
+        showLoading(false);
+        document.getElementById('emptyState').classList.add('show');
+        return;
+      }
+
+      state.currentPageId = data.post.page_id;
+      displayPost(data.post);
+      showLoading(false);
+    } catch(e) {
+      showLoading(false);
+      throw new Error('Failed to load post: ' + e.message);
+    }
+  }
+
+  function displayPost(post) {
+    document.getElementById('postId').textContent = post.unique_id || '—';
+    document.getElementById('postTitle').textContent = post.title || 'Untitled';
+    document.getElementById('postPillar').textContent = post.pillar || '—';
+    document.getElementById('postFormat').textContent = post.format || '—';
+    document.getElementById('postDate').textContent = post.date ? new Date(post.date).toLocaleDateString('en-NZ', {day:'numeric',month:'short',year:'numeric'}) : '—';
+    document.getElementById('captionText').textContent = post.message || '(No caption)';
+    document.getElementById('canvaPillarName').textContent = post.pillar || '';
+
+    const vn = document.getElementById('visualNotes');
+    if (post.visual_suggestions) {
+      document.getElementById('visualNotesText').textContent = post.visual_suggestions;
+      vn.style.display = 'block';
+    } else { vn.style.display = 'none'; }
+
+    const grid = document.getElementById('slidesGrid');
+    if (post.slides && post.slides.length) {
+      grid.innerHTML = post.slides.map(s => `
+        <div class="slide-item">
+          <div class="slide-num">${s.number}</div>
+          <div>
+            <div class="slide-name">Slide ${s.number}${s.name ? ' — ' + s.name : ''}</div>
+            <div class="slide-headline">${s.headline || '<em style="opacity:0.4">No headline</em>'}</div>
+            <div class="slide-body">${(s.body||'').replace(/\n/g,'<br>')}</div>
+          </div>
+        </div>`).join('');
+    } else {
+      grid.innerHTML = '<div style="color:var(--muted);font-size:13px;">No slides found on linked page.</div>';
+    }
+
+    document.getElementById('postCard').style.display = 'block';
+    setBtn('progressBtn', '▶ Mark In Progress', false);
+  }
+
+  async function markInProgress() {
+    setBtn('progressBtn', 'Updating...', true);
+    await updateNotionStatus('In progress');
+    setBtn('progressBtn', '✓ In Progress', true);
+  }
+
+  async function markDone() {
+    await updateNotionStatus('Done');
+    document.getElementById('postCard').style.display = 'none';
+    await loadNextPost();
+  }
+
+  async function updateNotionStatus(status) {
+    await callClaude(`Call the Notion API:
+PATCH https://api.notion.com/v1/pages/${state.currentPageId}
+Headers: Authorization: Bearer ${state.notionKey} | Notion-Version: 2022-06-28 | Content-Type: application/json
+Body: {"properties":{"Status":{"status":{"name":"${status}"}}}}
+Return only: {"success":true}`);
+  }
+
+  async function callClaude(prompt) {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': state.anthropicKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-calls': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(()=>({}));
+      throw new Error(e.error?.message || `API error ${res.status}`);
+    }
+    const data = await res.json();
+    return data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+  }
+
+  function openCanvaModal() {
+    const pillar = document.getElementById('postPillar').textContent;
+    const saved = localStorage.getItem('canva_'+pillar);
+    document.getElementById('canvaUrl').value = saved || '';
+    document.getElementById('canvaModal').classList.add('show');
+  }
+  function closeCanvaModal() { document.getElementById('canvaModal').classList.remove('show'); }
+  function openCanva() {
+    const url = document.getElementById('canvaUrl').value.trim();
+    const pillar = document.getElementById('postPillar').textContent;
+    if (!url) { showError('canvaError','Please enter a Canva template URL.'); return; }
+    localStorage.setItem('canva_'+pillar, url);
+    window.open(url, '_blank');
+    closeCanvaModal();
+  }
+
+  function showLoading(show, msg, step) {
+    document.getElementById('loading').classList.toggle('show', show);
+    if (msg) document.getElementById('loadingMsg').textContent = msg;
+    if (step !== undefined) document.getElementById('loadingStep').textContent = step;
+  }
+  function showError(id, msg) { const el=document.getElementById(id); el.textContent=msg; el.classList.add('show'); }
+  function setBtn(id, text, disabled) { const b=document.getElementById(id); b.textContent=text; b.disabled=disabled; }
+</script>
+</body>
+</html>
