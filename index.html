@@ -20,10 +20,7 @@
     z-index: 0; pointer-events: none;
   }
   .app { position: relative; z-index: 1; min-height: 100vh; }
-  header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 24px 40px; border-bottom: 1px solid rgba(91,175,200,0.15);
-  }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 24px 40px; border-bottom: 1px solid rgba(91,175,200,0.15); }
   .logo { display: flex; align-items: center; gap: 12px; }
   .logo-mark { width: 36px; height: 36px; background: linear-gradient(135deg, var(--teal), var(--light-teal)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
   .logo-text { font-family: 'DM Serif Display', serif; font-size: 20px; }
@@ -33,7 +30,8 @@
   .status-dot.connected { background: #4CAF50; box-shadow: 0 0 6px rgba(76,175,80,0.5); }
   main { max-width: 900px; margin: 0 auto; padding: 48px 40px; }
 
-  .setup-screen { max-width: 500px; margin: 0 auto; }
+  /* SETUP */
+  .setup-screen { max-width: 480px; margin: 0 auto; }
   .setup-icon { font-size: 48px; margin-bottom: 24px; text-align: center; }
   .setup-screen h2 { font-family: 'DM Serif Display', serif; font-size: 32px; font-weight: 400; margin-bottom: 10px; text-align: center; }
   .setup-screen .lead { font-size: 15px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; text-align: center; }
@@ -42,7 +40,6 @@
   .input-group input { width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.05); border: 1px solid rgba(91,175,200,0.2); border-radius: 10px; color: var(--white); font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s; }
   .input-group input:focus { border-color: var(--teal); }
   .input-group input::placeholder { color: rgba(255,255,255,0.2); font-size: 13px; }
-  .hint { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 6px; line-height: 1.5; }
 
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; border-radius: 10px; font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; border: none; transition: all 0.2s; }
   .btn-primary { background: linear-gradient(135deg, var(--teal), var(--ocean)); color: white; width: 100%; box-shadow: 0 4px 20px rgba(26,122,154,0.3); }
@@ -60,6 +57,7 @@
   .notice.info { background: rgba(26,122,154,0.15); border: 1px solid rgba(91,175,200,0.2); color: var(--pale); }
   .notice.show { display: block; }
 
+  /* PANEL */
   .panel-screen { display: none; }
   .panel-screen.show { display: block; }
   .queue-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding: 14px 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; }
@@ -103,9 +101,9 @@
   .caption-text { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.8; white-space: pre-line; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 16px; }
   .visual-notes { margin-top: 12px; font-size: 13px; color: var(--gold); background: rgba(200,169,110,0.08); border: 1px solid rgba(200,169,110,0.15); border-radius: 10px; padding: 14px 16px; line-height: 1.6; }
   .visual-notes-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(200,169,110,0.6); margin-bottom: 4px; }
-
   .actions { padding: 20px 28px 28px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 
+  /* CANVA MODAL */
   .modal-overlay { position: fixed; inset: 0; background: rgba(7,30,44,0.85); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; }
   .modal-overlay.show { display: flex; }
   .modal { background: #0D2A3C; border: 1px solid rgba(91,175,200,0.2); border-radius: 20px; padding: 36px; max-width: 440px; width: 90%; text-align: center; }
@@ -139,23 +137,15 @@
     <!-- SETUP -->
     <div class="setup-screen" id="setupScreen">
       <div class="setup-icon">🔑</div>
-      <h2>Connect Your Keys</h2>
-      <p class="lead">Enter your Notion and Anthropic API keys. Both are stored only in your browser's memory and sent only to their respective services.</p>
-
+      <h2>Connect to Notion</h2>
+      <p class="lead">Enter your Notion API key to load your content queue. Stored only in your browser for this session.</p>
       <div class="input-group">
         <label>Notion API Key</label>
         <input type="password" id="notionKey" placeholder="ntn_..." />
-        <div class="hint">notion.so/my-integrations → your integration → Internal Integration Secret</div>
       </div>
-      <div class="input-group">
-        <label>Anthropic API Key</label>
-        <input type="password" id="anthropicKey" placeholder="sk-ant-..." />
-        <div class="hint">console.anthropic.com → API Keys. Claude securely fetches your Notion data server-side.</div>
-      </div>
-
       <div class="notice error" id="setupError"></div>
       <button class="btn btn-primary" onclick="connect()" id="connectBtn">Connect & Load Queue</button>
-      <div class="notice info show" style="margin-top:20px;">🔒 Keys are never stored on any server. They live only in browser memory for this session.</div>
+      <div class="notice info show" style="margin-top:20px;">🔒 Your key is sent only to Notion's API, directly from your browser. It is never stored anywhere.</div>
     </div>
 
     <!-- PANEL -->
@@ -167,19 +157,16 @@
           <button class="btn btn-outline btn-sm" onclick="disconnect()" style="color:var(--muted);">Disconnect</button>
         </div>
       </div>
-
       <div class="loading" id="loading">
         <div class="spinner"></div>
         <p id="loadingMsg">Fetching your content queue...</p>
         <div class="step" id="loadingStep"></div>
       </div>
-
       <div class="empty-state" id="emptyState">
         <div class="emoji">✅</div>
         <h3>Queue is empty</h3>
         <p>No "Not started" Posts found. Add more content to Notion to continue.</p>
       </div>
-
       <div class="post-card" id="postCard">
         <div class="post-header">
           <div class="post-id" id="postId"></div>
@@ -230,21 +217,41 @@
 
 <script>
   const NOTION_DB_ID = '32fc3481637480608075fe78ee7f3787';
-  let state = { notionKey:'', anthropicKey:'', currentPageId:null };
+  const PROXY = 'https://corsproxy.io/?';
+  let state = { notionKey: '', currentPageId: null };
 
+  // ── NOTION API via CORS proxy ─────────────────────────────
+  async function notionFetch(path, options = {}) {
+    const target = 'https://api.notion.com/v1' + path;
+    const url = PROXY + encodeURIComponent(target);
+    const res = await fetch(url, {
+      method: options.method || 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + state.notionKey,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json'
+      },
+      body: options.body || undefined
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.message || 'Notion error ' + res.status);
+    }
+    return res.json();
+  }
+
+  // ── CONNECT ───────────────────────────────────────────────
   async function connect() {
-    const nKey = document.getElementById('notionKey').value.trim();
-    const aKey = document.getElementById('anthropicKey').value.trim();
-    if (!nKey || !aKey) { showError('setupError', 'Please enter both API keys.'); return; }
-    state.notionKey = nKey;
-    state.anthropicKey = aKey;
+    const key = document.getElementById('notionKey').value.trim();
+    if (!key) { showError('setupError', 'Please enter your Notion API key.'); return; }
+    state.notionKey = key;
     setBtn('connectBtn', 'Connecting...', true);
     try {
       await loadNextPost();
       document.getElementById('setupScreen').style.display = 'none';
       document.getElementById('panelScreen').classList.add('show');
       document.getElementById('statusDot').classList.add('connected');
-      document.getElementById('statusText').textContent = 'Connected';
+      document.getElementById('statusText').textContent = 'Connected to Notion';
     } catch(e) {
       showError('setupError', 'Connection failed: ' + e.message);
       setBtn('connectBtn', 'Connect & Load Queue', false);
@@ -252,107 +259,128 @@
   }
 
   function disconnect() {
-    state = { notionKey:'', anthropicKey:'', currentPageId:null };
+    state = { notionKey: '', currentPageId: null };
     document.getElementById('setupScreen').style.display = 'block';
     document.getElementById('panelScreen').classList.remove('show');
     document.getElementById('statusDot').classList.remove('connected');
     document.getElementById('statusText').textContent = 'Not connected';
     document.getElementById('notionKey').value = '';
-    document.getElementById('anthropicKey').value = '';
     setBtn('connectBtn', 'Connect & Load Queue', false);
     document.getElementById('postCard').style.display = 'none';
   }
 
+  // ── LOAD NEXT POST ────────────────────────────────────────
   async function loadNextPost() {
-    showLoading(true, 'Claude is fetching your Notion queue...', '');
+    showLoading(true, 'Querying Notion database...');
     document.getElementById('postCard').style.display = 'none';
     document.getElementById('emptyState').classList.remove('show');
 
-    const prompt = `You are a data-fetching assistant with access to external HTTP APIs.
+    // Query for next Not started Post
+    const dbData = await notionFetch('/databases/' + NOTION_DB_ID + '/query', {
+      method: 'POST',
+      body: JSON.stringify({
+        filter: { and: [
+          { property: 'Status', status: { equals: 'Not started' } },
+          { property: 'Format', select: { equals: 'Post' } }
+        ]},
+        sorts: [{ property: 'Unique ID', direction: 'ascending' }],
+        page_size: 20
+      })
+    });
 
-Make the following Notion API calls and return structured JSON.
+    document.getElementById('queueCount').textContent = dbData.results.length || 0;
 
-STEP 1 — Query database for next Post:
-URL: https://api.notion.com/v1/databases/${NOTION_DB_ID}/query
-Method: POST
-Headers: Authorization: Bearer ${state.notionKey} | Notion-Version: 2022-06-28 | Content-Type: application/json
-Body: {"filter":{"and":[{"property":"Status","status":{"equals":"Not started"}},{"property":"Format","select":{"equals":"Post"}}]},"sorts":[{"property":"Unique ID","direction":"ascending"}],"page_size":20}
+    if (!dbData.results.length) {
+      showLoading(false);
+      document.getElementById('emptyState').classList.add('show');
+      return;
+    }
 
-From the results take the FIRST item. Extract:
-- page_id (the id field of the page object)
-- unique_id: from property "Unique ID" (rich_text type - join plain_text values)
-- title: from the title-type property (join plain_text values)
-- pillar: from "Pillar" select property (name field)
-- format: from "Format" select property (name field)
-- date: from "Date" date property (start field)
-- message: from "Message" rich_text property (join plain_text values)
-- visual_suggestions: from "Visual Suggestions" rich_text property (join plain_text values)
-- content_url: from "Content / URL" url property
+    const page = dbData.results[0];
+    const props = page.properties;
+    state.currentPageId = page.id;
 
-Also note total_queue = total number of results returned.
+    const post = {
+      page_id: page.id,
+      unique_id: getRichText(props, 'Unique ID'),
+      title: getTitle(props),
+      pillar: props['Pillar']?.select?.name || '—',
+      format: props['Format']?.select?.name || '—',
+      date: props['Date']?.date?.start || '',
+      message: getRichText(props, 'Message'),
+      visual_suggestions: getRichText(props, 'Visual Suggestions'),
+      content_url: props['Content / URL']?.url || '',
+      slides: []
+    };
 
-STEP 2 — Fetch slide content from the linked page:
-Extract the 32-character hex page ID from content_url.
-URL: https://api.notion.com/v1/blocks/{that_page_id}/children?page_size=100
-Method: GET
-Headers: Authorization: Bearer ${state.notionKey} | Notion-Version: 2022-06-28
+    // Fetch slide content from linked page
+    if (post.content_url) {
+      showLoading(true, 'Loading slide content...');
+      const pageId = extractPageId(post.content_url);
+      if (pageId) {
+        try {
+          const blocks = await notionFetch('/blocks/' + pageId + '/children?page_size=100');
+          post.slides = parseSlides(blocks.results);
+        } catch(e) {
+          console.warn('Could not load slides:', e.message);
+        }
+      }
+    }
 
-Parse the blocks to extract slides. Rules:
-- A new slide starts whenever a heading_2 block contains "Slide" in its text
-- The slide name is the text after the dash in the heading (e.g. "Slide 1 — Hook" → name is "Hook")  
-- After "Headline" label: the next non-empty paragraph text is the headline
-- After "Text" label: all following paragraphs until next Slide heading are the body (join with newline)
-- "Headline" and "Text" labels are bold paragraphs containing only those words
-
-STEP 3 — Return ONLY this JSON, no markdown fences, no explanation:
-{
-  "total_queue": <number>,
-  "post": {
-    "page_id": "...",
-    "unique_id": "...",
-    "title": "...",
-    "pillar": "...",
-    "format": "...",
-    "date": "...",
-    "message": "...",
-    "visual_suggestions": "...",
-    "slides": [
-      {"number": 1, "name": "...", "headline": "...", "body": "..."},
-      {"number": 2, "name": "...", "headline": "...", "body": "..."}
-    ]
+    displayPost(post);
+    showLoading(false);
   }
-}
 
-If no matching posts exist: {"total_queue": 0, "post": null}`;
+  // ── PARSE SLIDES ──────────────────────────────────────────
+  function parseSlides(blocks) {
+    const slides = [];
+    let current = null;
+    let mode = null;
 
-    try {
-      const raw = await callClaude(prompt);
-      const clean = raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
-      const data = JSON.parse(clean);
+    for (const block of blocks) {
+      const type = block.type;
+      const text = getBlockText(block).trim();
 
-      document.getElementById('queueCount').textContent = data.total_queue || 0;
-
-      if (!data.post) {
-        showLoading(false);
-        document.getElementById('emptyState').classList.add('show');
-        return;
+      if (type === 'heading_2' && text.toLowerCase().includes('slide')) {
+        if (current) slides.push(current);
+        const nameMatch = text.match(/slide\s*\d+\s*[—\-–]\s*(.+)/i);
+        const numMatch = text.match(/\d+/);
+        current = {
+          number: numMatch ? parseInt(numMatch[0]) : slides.length + 1,
+          name: nameMatch ? nameMatch[1].trim() : '',
+          headline: '', body: []
+        };
+        mode = null;
+        continue;
       }
 
-      state.currentPageId = data.post.page_id;
-      displayPost(data.post);
-      showLoading(false);
-    } catch(e) {
-      showLoading(false);
-      throw new Error('Failed to load post: ' + e.message);
+      if (!current) continue;
+
+      if (text.toLowerCase() === 'headline') { mode = 'headline'; continue; }
+      if (text.toLowerCase() === 'text') { mode = 'body'; continue; }
+      if (!text) continue;
+
+      if (mode === 'headline' && !current.headline) {
+        current.headline = text;
+      } else if (mode === 'body') {
+        current.body.push(text);
+      } else if (!current.headline && isBlockBold(block)) {
+        current.headline = text;
+      } else if (current.headline) {
+        current.body.push(text);
+      }
     }
+    if (current) slides.push(current);
+    return slides.map(s => ({ ...s, body: s.body.join('\n') }));
   }
 
+  // ── DISPLAY POST ──────────────────────────────────────────
   function displayPost(post) {
     document.getElementById('postId').textContent = post.unique_id || '—';
     document.getElementById('postTitle').textContent = post.title || 'Untitled';
     document.getElementById('postPillar').textContent = post.pillar || '—';
     document.getElementById('postFormat').textContent = post.format || '—';
-    document.getElementById('postDate').textContent = post.date ? new Date(post.date).toLocaleDateString('en-NZ', {day:'numeric',month:'short',year:'numeric'}) : '—';
+    document.getElementById('postDate').textContent = post.date ? new Date(post.date).toLocaleDateString('en-NZ', { day:'numeric', month:'short', year:'numeric' }) : '—';
     document.getElementById('captionText').textContent = post.message || '(No caption)';
     document.getElementById('canvaPillarName').textContent = post.pillar || '';
 
@@ -370,64 +398,40 @@ If no matching posts exist: {"total_queue": 0, "post": null}`;
           <div>
             <div class="slide-name">Slide ${s.number}${s.name ? ' — ' + s.name : ''}</div>
             <div class="slide-headline">${s.headline || '<em style="opacity:0.4">No headline</em>'}</div>
-            <div class="slide-body">${(s.body||'').replace(/\n/g,'<br>')}</div>
+            <div class="slide-body">${(s.body || '').replace(/\n/g, '<br>')}</div>
           </div>
         </div>`).join('');
     } else {
-      grid.innerHTML = '<div style="color:var(--muted);font-size:13px;">No slides found on linked page.</div>';
+      grid.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0;">No slides found on linked page.</div>';
     }
 
     document.getElementById('postCard').style.display = 'block';
     setBtn('progressBtn', '▶ Mark In Progress', false);
   }
 
+  // ── STATUS ────────────────────────────────────────────────
   async function markInProgress() {
     setBtn('progressBtn', 'Updating...', true);
-    await updateNotionStatus('In progress');
+    await notionFetch('/pages/' + state.currentPageId, {
+      method: 'PATCH',
+      body: JSON.stringify({ properties: { Status: { status: { name: 'In progress' } } } })
+    });
     setBtn('progressBtn', '✓ In Progress', true);
   }
 
   async function markDone() {
-    await updateNotionStatus('Done');
+    await notionFetch('/pages/' + state.currentPageId, {
+      method: 'PATCH',
+      body: JSON.stringify({ properties: { Status: { status: { name: 'Done' } } } })
+    });
     document.getElementById('postCard').style.display = 'none';
     await loadNextPost();
   }
 
-  async function updateNotionStatus(status) {
-    await callClaude(`Call the Notion API:
-PATCH https://api.notion.com/v1/pages/${state.currentPageId}
-Headers: Authorization: Bearer ${state.notionKey} | Notion-Version: 2022-06-28 | Content-Type: application/json
-Body: {"properties":{"Status":{"status":{"name":"${status}"}}}}
-Return only: {"success":true}`);
-  }
-
-  async function callClaude(prompt) {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': state.anthropicKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-calls': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    if (!res.ok) {
-      const e = await res.json().catch(()=>({}));
-      throw new Error(e.error?.message || `API error ${res.status}`);
-    }
-    const data = await res.json();
-    return data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
-  }
-
+  // ── CANVA ─────────────────────────────────────────────────
   function openCanvaModal() {
     const pillar = document.getElementById('postPillar').textContent;
-    const saved = localStorage.getItem('canva_'+pillar);
+    const saved = localStorage.getItem('canva_' + pillar);
     document.getElementById('canvaUrl').value = saved || '';
     document.getElementById('canvaModal').classList.add('show');
   }
@@ -435,19 +439,47 @@ Return only: {"success":true}`);
   function openCanva() {
     const url = document.getElementById('canvaUrl').value.trim();
     const pillar = document.getElementById('postPillar').textContent;
-    if (!url) { showError('canvaError','Please enter a Canva template URL.'); return; }
-    localStorage.setItem('canva_'+pillar, url);
+    if (!url) { showError('canvaError', 'Please enter a Canva template URL.'); return; }
+    localStorage.setItem('canva_' + pillar, url);
     window.open(url, '_blank');
     closeCanvaModal();
   }
 
-  function showLoading(show, msg, step) {
+  // ── HELPERS ───────────────────────────────────────────────
+  function getTitle(props) {
+    for (const k of Object.keys(props)) {
+      if (props[k].type === 'title') return props[k].title.map(t => t.plain_text).join('');
+    }
+    return 'Untitled';
+  }
+  function getRichText(props, name) {
+    const p = props[name];
+    if (!p) return '';
+    if (p.type === 'rich_text') return p.rich_text.map(t => t.plain_text).join('');
+    if (p.type === 'title') return p.title.map(t => t.plain_text).join('');
+    return '';
+  }
+  function getBlockText(block) {
+    const c = block[block.type];
+    if (!c?.rich_text) return '';
+    return c.rich_text.map(t => t.plain_text).join('');
+  }
+  function isBlockBold(block) {
+    const c = block[block.type];
+    if (!c?.rich_text?.length) return false;
+    return c.rich_text.every(t => t.annotations?.bold);
+  }
+  function extractPageId(url) {
+    const m = url.match(/([a-f0-9]{32})/i);
+    return m ? m[1] : null;
+  }
+  function showLoading(show, msg) {
     document.getElementById('loading').classList.toggle('show', show);
     if (msg) document.getElementById('loadingMsg').textContent = msg;
-    if (step !== undefined) document.getElementById('loadingStep').textContent = step;
+    if (show) document.getElementById('emptyState').classList.remove('show');
   }
-  function showError(id, msg) { const el=document.getElementById(id); el.textContent=msg; el.classList.add('show'); }
-  function setBtn(id, text, disabled) { const b=document.getElementById(id); b.textContent=text; b.disabled=disabled; }
+  function showError(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.add('show'); }
+  function setBtn(id, text, disabled) { const b = document.getElementById(id); b.textContent = text; b.disabled = disabled; }
 </script>
 </body>
 </html>
